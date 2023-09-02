@@ -1,30 +1,46 @@
 # Note: you need to be using OpenAI Python v0.27.0 for the code below to work
 import os
-
 import openai
+import tkinter as tk
+from tkinter import filedialog
 
 openai.api_key = os.environ['OPENAI_API_KEY']
-mp3_file_path = "TheArchers-20230820.mp3"
 
-# Extract the base name of the MP3 file (without the extension)
-base_name = os.path.splitext(mp3_file_path)[0]
+# Function to handle transcription
+# Function to handle transcription
+def transcribe_audio():
+    # Prompt the user to select an audio file using a file dialog
+    file_path = filedialog.askopenfilename(filetypes=[("MP3 Files", "*.mp3")])
 
-# Transcribe the audio
-audio_file = open(mp3_file_path, "rb")
-transcript = openai.Audio.transcribe("whisper-1", audio_file)
+    if file_path:
+        # Extract the base name of the selected audio file (without the extension)
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
+        print(base_name)
 
-# Extract the text content from the transcript object
-transcript_text = transcript['text']
+        # Transcribe the selected audio
+        audio_file = open(file_path, "rb")
+        transcription_result = openai.Audio.transcribe("whisper-1", audio_file)
 
-# Specify the path to the text file with the same name as the MP3 file
-output_file_path = f"{base_name}.txt"
+        # Extract the text content from the transcription result
+        transcript_text = transcription_result['text']
 
-# Write the transcript to the text file
-with open(output_file_path, "w") as output_file:
-    output_file.write(transcript_text)
+        # Prompt the user to choose where to save the transcript text file
+        save_file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
 
-# Close the audio file
-audio_file.close()
+        if save_file_path:
+            # Write the transcript text to the selected file
+            with open(save_file_path, "w") as output_file:
+                output_file.write(transcript_text)
 
-# Print a message indicating that the transcript has been saved
-print(f"Transcript saved to {output_file_path}")
+            # Close the audio file
+            audio_file.close()
+
+            # Print a message indicating that the transcript has been saved
+            print(f"Transcript saved to {save_file_path}")
+
+# Create a GUI window
+root = tk.Tk()
+root.withdraw()  # Hide the main window
+
+# Call the function to select and transcribe an audio file
+transcribe_audio()
