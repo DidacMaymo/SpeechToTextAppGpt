@@ -1,4 +1,3 @@
-# Note: you need to be using OpenAI Python v0.27.0 for the code below to work
 import os
 import openai
 import tkinter as tk
@@ -6,7 +5,6 @@ from tkinter import filedialog
 
 openai.api_key = os.environ['OPENAI_API_KEY']
 
-# Function to handle transcription
 # Function to handle transcription
 def transcribe_audio():
     # Prompt the user to select an audio file using a file dialog
@@ -20,23 +18,27 @@ def transcribe_audio():
         # Transcribe the selected audio
         audio_file = open(file_path, "rb")
         transcription_result = openai.Audio.transcribe("whisper-1", audio_file)
+        print('Transcription Done')
 
         # Extract the text content from the transcription result
         transcript_text = transcription_result['text']
 
-        # Prompt the user to choose where to save the transcript text file
-        save_file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text Files", "*.txt")])
+        # Obtén la ubicación del archivo MP3
+        mp3_directory = os.path.dirname(file_path)
 
-        if save_file_path:
-            # Write the transcript text to the selected file
-            with open(save_file_path, "w") as output_file:
-                output_file.write(transcript_text)
+        # Combina la ubicación del archivo MP3 con el nombre del archivo de transcripción
+        output_file_path = os.path.join(mp3_directory, f"{base_name}.txt")
 
-            # Close the audio file
-            audio_file.close()
+        # Escribe el archivo de transcripción en la ubicación deseada
+        with open(output_file_path, "w") as output_file:
+            output_file.write(transcript_text)
 
-            # Print a message indicating that the transcript has been saved
-            print(f"Transcript saved to {save_file_path}")
+        print('save path')
+
+        audio_file.close()
+
+        # Print a message indicating that the transcript has been saved
+        print(f"Transcript saved to {output_file_path}")
 
 # Create a GUI window
 root = tk.Tk()
